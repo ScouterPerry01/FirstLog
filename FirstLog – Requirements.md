@@ -1,6 +1,6 @@
 <!--
 File path and name: FirstLog – Requirements.md
-Modified On Timestamp: 2026-11-07 @ 19:34 EST (licence decided: GPL-3.0)
+Modified On Timestamp: 2026-11-07 @ 19:59 EST (stack decided: Flutter; web mainly review/reports) - earlier: 2026-11-07 @ 19:34 EST (licence: GPL-3.0)
 Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
 File Description: FirstLog requirements: scope, roles, workflows, requirement IDs with priorities, data model,
                   reports, non-functional requirements, risks, open questions and release phases.
@@ -222,7 +222,8 @@ FirstLog produces three reports, each available on screen, as PDF, and in any su
 
 ### Platforms
 
-- iOS, Android, Windows, macOS, Linux and modern web browsers from one shared codebase (candidate: Flutter, or a Progressive Web App).
+- iOS, Android, Windows, macOS, Linux and modern web browsers from one shared codebase, built with Flutter (decided 2026-11-07; see `docs/decisions/0001-tech-stack-flutter.md`).
+- The installed apps are the capture tool. The web version is mainly a review and report tool: browsers cannot keep the microphone running when the screen locks or the app is in the background, so capture in a browser is best effort, only while the page is open.
 - MVP platforms: Android, Windows, Linux and modern web browsers. Apple devices (iPhone, iPad, Mac) and smartwatches, including Apple Watch, are not supported in the MVP; the web version is not tested or supported on Apple devices either.
 - Phones are the primary device; tablets and laptops are used mostly for review and reports.
 - Minimum supported versions to be set so that roughly 95% of active devices are covered.

@@ -1,3 +1,14 @@
+<!--
+File path and name: CLAUDE.md
+Modified On Timestamp: 2026-11-07 @ 19:59 EST (added Architecture decisions and Session context)
+Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
+File Description: Project instructions for Claude Code in the FirstLog repository.
+Uses: FirstLog – Requirements.md, FirstLog – Background & Feasibility.md, docs/decisions/, docs/NOW.md,
+      docs/outstanding-and-deferred-items.md
+Used By: Claude Code, loaded on every turn in this repository.
+Purpose: Durable rules, source-of-truth pointers and architecture decisions only - no progress or dates of work.
+-->
+
 # FirstLog
 
 FirstLog is a free, open-source, multilingual app that lets a first aider document an incident hands-free, by voice, while giving care, and hand over a clean record to EMS.
@@ -21,3 +32,15 @@ If code and these documents disagree, the documents win. Raise the conflict with
 ## MVP target
 
 Android, Windows, Linux and modern web browsers. Apple devices (iPhone, iPad, Mac) and smartwatches are out of scope for the MVP.
+
+## Architecture decisions
+
+Decision records live in `docs/decisions/` (one numbered file each). Do not re-argue an accepted decision; propose a new record that replaces it.
+
+- **Stack: Flutter (Dart)**, one codebase for all platforms (`0001-tech-stack-flutter.md`).
+- **The installed apps are the capture tool; the web version is mainly for review and reports.** Do not design hands-free capture around the browser.
+- Speech recognition runs on the device through a bundled open-source engine; never a cloud or browser speech service.
+
+## Session context
+
+Read `docs/NOW.md` first when resuming. Outstanding work is in `docs/outstanding-and-deferred-items.md`, mirrored in App.Tracker as project `FLOG`.

@@ -1,5 +1,5 @@
 <!-- File path and name: docs/outstanding-and-deferred-items.md
-     Modified On Timestamp: 2026-11-07 @ 19:28 EST
+     Modified On Timestamp: 2026-11-07 @ 19:59 EST
      Created On Timestamp: 2026-11-07 @ 19:28 EST
      File Description: The authoritative register of every OUTSTANDING and DEFERRED item still to be addressed in
                        FirstLog. Each item is defined, given a status, and flagged as a release gate or not.
@@ -41,9 +41,9 @@ There is no application code yet; every OPEN item below comes from the two sourc
 | # | Item | Gate | Status | Evidence / what remains |
 |---|------|------|--------|-------------------------|
 | 1.1 | Create the public GitHub repository | ⚪ | **DONE** | github.com/ScouterPerry01/FirstLog, commit `f72d9bf` |
-| 1.2 | Choose the open-source licence and record it in the Requirements | ⚪ | **DONE** | GPL-3.0: `LICENSE` (`f72d9bf`); Requirements "Open source" + open question updated in this commit |
-| 1.3 | Choose the tech stack: Flutter or Progressive Web App | 🟡 | **OPEN** | Requirements → Non-functional → Platforms; blocks all MVP build work |
-| 1.4 | Set up session context: `docs/NOW.md` and `docs/session-log.md` | ⚪ | **OPEN** | Run the `organize-project-context` skill |
+| 1.2 | Choose the open-source licence and record it in the Requirements | ⚪ | **DONE** | GPL-3.0: `LICENSE` (`f72d9bf`); Requirements "Open source" + open question updated (`9834ad1`) |
+| 1.3 | Choose the tech stack: Flutter or Progressive Web App | 🟡 | **DONE** | Flutter; web mainly review/reports - `docs/decisions/0001-tech-stack-flutter.md`, Requirements → Platforms, `CLAUDE.md` |
+| 1.4 | Set up session context: `docs/NOW.md` and `docs/session-log.md` | ⚪ | **PARTLY DONE** | `docs/NOW.md` added; `docs/session-log.md` is started by the first wrap-up |
 
 ## 2. Open questions from the Requirements 🟡
 
@@ -83,7 +83,8 @@ New findings get the next **N-number** (N1, N2, ...) and go here AND into App.Tr
 
 | # | Item | Gate | Status | Evidence / what remains |
 |---|------|------|--------|-------------------------|
-| | *(none yet)* | | | |
+| N1 | Trial build (spike): offline EN + FR speech on a low-cost Android phone with the screen locked, plus the same engine in a browser build; picks the speech engine | 🟡 | **OPEN** | Decision 0001 → Consequences; first build step; feeds 4.1 |
+| N2 | Confirm the offline and MVP acceptance criteria apply to the installed apps for hands-free capture, not the web version | 🟡 | **OPEN** | Decision 0001 → Consequences; owner to confirm; Requirements → Offline and performance |
 
 ---
 
