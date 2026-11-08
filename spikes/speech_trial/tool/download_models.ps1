@@ -1,5 +1,5 @@
 # File path and name: spikes/speech_trial/tool/download_models.ps1
-# Modified On Timestamp: 2026-11-08 @ 03:34 EST
+# Modified On Timestamp: 2026-11-08 @ 06:23 EST (added Piper EN/FR voices)
 # Created On Timestamp: 2026-11-08 @ 03:34 EST
 # File Description: Downloads the speech models for the N1 speech trial into spikes/speech_trial/models/
 #                   (git-ignored) and keeps only the files the app loads.
@@ -22,7 +22,10 @@ $archives = @(
     @{ name = 'sherpa-onnx-streaming-zipformer-en-2023-06-26';           url = "$base/asr-models/sherpa-onnx-streaming-zipformer-en-2023-06-26.tar.bz2" },
     @{ name = 'sherpa-onnx-streaming-zipformer-fr-2023-04-14';           url = "$base/asr-models/sherpa-onnx-streaming-zipformer-fr-2023-04-14.tar.bz2" },
     @{ name = 'sherpa-onnx-nemo-canary-180m-flash-en-es-de-fr-int8';     url = "$base/asr-models/sherpa-onnx-nemo-canary-180m-flash-en-es-de-fr-int8.tar.bz2" },
-    @{ name = 'sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01';    url = "$base/kws-models/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01.tar.bz2" }
+    @{ name = 'sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01';    url = "$base/kws-models/sherpa-onnx-kws-zipformer-gigaspeech-3.3M-2024-01-01.tar.bz2" },
+    # Offline voices for the spoken prompts (VC-8)
+    @{ name = 'vits-piper-en_US-amy-low';                                url = "$base/tts-models/vits-piper-en_US-amy-low.tar.bz2" },
+    @{ name = 'vits-piper-fr_FR-siwis-medium';                           url = "$base/tts-models/vits-piper-fr_FR-siwis-medium.tar.bz2" }
 )
 
 foreach ($a in $archives) {

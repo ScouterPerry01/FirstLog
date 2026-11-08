@@ -34,12 +34,13 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  sherpa_onnx: ^2.0.1
+  sherpa_onnx: 1.13.8  # pinned: 2.x dropped espeak-ng, so Piper voices produce no audio (see README)
   record: ^7.1.2
   flutter_foreground_task: ^11.0.3
   path_provider: ^2.1.6
   battery_plus: ^7.1.2
   permission_handler: ^13.0.2
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
