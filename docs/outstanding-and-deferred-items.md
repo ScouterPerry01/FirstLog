@@ -1,5 +1,5 @@
 <!-- File path and name: docs/outstanding-and-deferred-items.md
-     Modified On Timestamp: 2026-11-07 @ 19:59 EST
+     Modified On Timestamp: 2026-11-07 @ 21:08 EST
      Created On Timestamp: 2026-11-07 @ 19:28 EST
      File Description: The authoritative register of every OUTSTANDING and DEFERRED item still to be addressed in
                        FirstLog. Each item is defined, given a status, and flagged as a release gate or not.
@@ -43,7 +43,7 @@ There is no application code yet; every OPEN item below comes from the two sourc
 | 1.1 | Create the public GitHub repository | ⚪ | **DONE** | github.com/ScouterPerry01/FirstLog, commit `f72d9bf` |
 | 1.2 | Choose the open-source licence and record it in the Requirements | ⚪ | **DONE** | GPL-3.0: `LICENSE` (`f72d9bf`); Requirements "Open source" + open question updated (`9834ad1`) |
 | 1.3 | Choose the tech stack: Flutter or Progressive Web App | 🟡 | **DONE** | Flutter; web mainly review/reports - `docs/decisions/0001-tech-stack-flutter.md`, Requirements → Platforms, `CLAUDE.md` |
-| 1.4 | Set up session context: `docs/NOW.md` and `docs/session-log.md` | ⚪ | **PARTLY DONE** | `docs/NOW.md` added; `docs/session-log.md` is started by the first wrap-up |
+| 1.4 | Set up session context: `docs/NOW.md` and `docs/session-log.md` | ⚪ | **DONE** | `docs/NOW.md` (`c9f2d45`); `docs/session-log.md` and first handover added at the 2026-11-07 wrap-up |
 
 ## 2. Open questions from the Requirements 🟡
 
@@ -83,8 +83,10 @@ New findings get the next **N-number** (N1, N2, ...) and go here AND into App.Tr
 
 | # | Item | Gate | Status | Evidence / what remains |
 |---|------|------|--------|-------------------------|
-| N1 | Trial build (spike): offline EN + FR speech on a low-cost Android phone with the screen locked, plus the same engine in a browser build; picks the speech engine | 🟡 | **OPEN** | Decision 0001 → Consequences; first build step; feeds 4.1 |
+| N1 | Trial build (spike): offline EN + FR speech on a low-cost Android phone with the screen locked, plus the same engine in a browser build; picks the speech engine | 🟡 | **OPEN** | Decision 0001 → Consequences; first build step; feeds 4.1. Dev phone is a flagship; battery/speed results need a low-cost phone |
 | N2 | Confirm the offline and MVP acceptance criteria apply to the installed apps for hands-free capture, not the web version | 🟡 | **OPEN** | Decision 0001 → Consequences; owner to confirm; Requirements → Offline and performance |
+| N3 | Set up the Flutter development environment on the Windows PC | ⚪ | **DONE** | Flutter 3.47.9, `flutter doctor` clean, test app ran on Windows, web and Android - handover 2026-11-07 §4 |
+| N4 | `flutter run -d chrome` fails: the browser relaunches itself so Flutter never connects (Edge too) | ⚪ | **OPEN** | Security software on the dev PC suspected, unproven; workaround `flutter run -d web-server` - handover 2026-11-07 §4 |
 
 ---
 
