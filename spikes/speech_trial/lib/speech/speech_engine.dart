@@ -1,5 +1,5 @@
 // File path and name: spikes/speech_trial/lib/speech/speech_engine.dart
-// Modified On Timestamp: 2026-11-08 @ 06:23 EST
+// Modified On Timestamp: 2026-11-08 @ 16:58 EST (word start times, to cut the end phrase out of the audio)
 // Created On Timestamp: 2026-11-08 @ 06:23 EST
 // File Description: Engine-neutral interfaces for speech recognition in the N1 trial.
 // Uses: dart:typed_data.
@@ -11,13 +11,21 @@ import 'dart:typed_data';
 
 /// Text so far for the current utterance.
 class StreamingResult {
-  const StreamingResult(this.text, {required this.isEndpoint});
+  const StreamingResult(this.text,
+      {required this.isEndpoint, this.words = const [], this.secondsSinceReset = 0});
 
   /// Recognized text of the current utterance (since the last endpoint / reset).
   final String text;
 
   /// True when the engine decided the utterance ended (trailing silence). The caller then calls [reset].
   final bool isEndpoint;
+
+  /// Each recognized word with the time it started, in seconds since the last [StreamingRecognizer.reset].
+  /// Empty when the engine gives no timing.
+  final List<(String, double)> words;
+
+  /// Seconds of audio accepted since the last reset (the "now" that [words] times are measured against).
+  final double secondsSinceReset;
 }
 
 /// Gives text while the user speaks. Used for key-phrase listening (VC-1, VC-4) and set-up A dictation.

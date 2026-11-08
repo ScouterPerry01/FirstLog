@@ -1,6 +1,6 @@
 <!--
 File path and name: spikes/speech_trial/README.md
-Modified On Timestamp: 2026-11-08 @ 06:23 EST (voice loop, self-test, phone scripts, sherpa_onnx pin)
+Modified On Timestamp: 2026-11-08 @ 16:58 EST (switches, cues, no echo cancellation, Canary clean-up, phone runs 1-2)
 Created On Timestamp: 2026-11-08 @ 03:34 EST (replaces the flutter create placeholder)
 File Description: What the N1 speech trial is, how to get the models, and how to run it.
 Uses: tool/download_models.ps1, docs/decisions/0002-voice-interaction-command-driven-capture.md.
@@ -60,8 +60,30 @@ flutter build windows --debug; Start-Process build\windows\x64\runner\Debug\spee
 ```
 
 The voice loop: tap **Start trial** → "New first aid log, or continuing?" → say "New" → "Ready…" + date and time →
-say a field keyword ("Scene info", "Vitals", "Treatment", "History") → "Proceed" → dictate → "FirstLog end" →
-"Saved". "Read back" reads the last dictation. "Call 9-1-1" is logged and answered, **never dialled**.
+say a field keyword ("Scene info" / "Scene report", "Vitals", "Treatment", "History") → "Proceed" → dictate →
+"First Log end" or "Stop dictation" → "Saved". "Read back" reads the last dictation. "Call 9-1-1" (also a close
+mishearing, or "nine one one" said on its own) is logged and answered, **never dialled**.
+
+Switches on the screen (all logged in `run-start`):
+
+- **Canary (set-up B)**: also transcribe each dictation with Canary.
+- **Key-phrase hotwords**: bias set-up A towards the key phrases (needs modified_beam_search; more CPU).
+- **Tones and vibration**: a rising tone + one buzz before "Proceed"/"Ready", two beeps + two buzzes before
+  "Saved", three high beeps + a long buzz before the 9-1-1 answer, so the state is clear without the screen.
+  Every prompt starts with 300 ms of silence so Bluetooth earbuds are awake before the sound starts.
+
+What the trial learned so far and built in:
+
+- **No Android echo cancellation.** On the S22 its "voice communication" mode removed no echo and made set-up A
+  hear a phantom "and" about once a second, which also stopped dictations ending on silence. Instead the app
+  strips its own prompt from the start of the next utterance (`echo-stripped` in the log), including a short
+  word the cue tone is sometimes heard as.
+- **Canary hears only the dictation:** the Silero voice detector drops silence (Canary invented "T T T…" over
+  silence), runs of repeated words or letters are removed and logged, and the audio is cut where set-up A heard
+  the end phrase start, moved 300 ms earlier because the streaming model reports words slightly late (picked from
+  the self-test on the phone recordings: 14 of 15 clean). The saved recording stays complete (VC-3).
+- The self-test also replays every dictation recorded on the phone (`trial-logs/run-*/audio`), checks the word
+  timing and whether the cue tones are heard as words.
 
 Tests run in airplane mode. Battery and speed numbers only count on a low-cost phone.
 

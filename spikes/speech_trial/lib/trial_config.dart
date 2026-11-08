@@ -1,5 +1,6 @@
 // File path and name: spikes/speech_trial/lib/trial_config.dart
-// Modified On Timestamp: 2026-11-08 @ 06:23 EST
+// Modified On Timestamp: 2026-11-08 @ 16:58 EST (after run 2: "scene report", bare "nine one one", 9-1-1 prompt
+//                       without the phrase, tones/vibration cues with a Bluetooth lead-in)
 // Created On Timestamp: 2026-11-08 @ 06:23 EST
 // File Description: Key phrases, spoken prompts, model folder names and timings for the N1 speech trial,
 //                   per language (English, French).
@@ -24,6 +25,7 @@ class LanguagePack {
     required this.endPhrases,
     required this.readBack,
     required this.call911,
+    required this.call911Bare,
     required this.promptAsk,
     required this.promptReadyNew,
     required this.promptReadyContinue,
@@ -47,6 +49,10 @@ class LanguagePack {
   final List<String> readBack;
   final List<String> call911;
 
+  /// "Nine one one" said on its own (run 2: "call" and "nine one one" were often heard as two utterances).
+  /// Counts only as the whole utterance, and not during a dictation.
+  final List<String> call911Bare;
+
   // Spoken prompts (VC-8).
   final String promptAsk;
   final String promptReadyNew;
@@ -58,6 +64,17 @@ class LanguagePack {
 
   final List<String> weekdays; // Monday first
   final List<String> months; // January first
+
+  /// Every key phrase, for recognizer hotwords and near-miss logging.
+  List<String> get allCommands => [
+        ...sessionNew,
+        ...sessionContinue,
+        for (final l in fields.values) ...l,
+        ...endPhrases,
+        ...readBack,
+        ...call911,
+        ...call911Bare,
+      ];
 
   /// Day, date and time, said after "Ready" (VC-8).
   String spokenDateTime(DateTime t) {
@@ -80,21 +97,25 @@ const englishPack = LanguagePack(
   sessionNew: ['new', 'new log', 'new one'],
   sessionContinue: ['continuing', 'continue', 'continue log'],
   fields: {
-    TrialField.scene: ['scene info', 'scene information', 'scene'],
-    TrialField.vitals: ['vitals', 'vital signs'],
+    // "scene report" added after run 2: "info" was heard as "impul" nearly every time.
+    TrialField.scene: ['scene info', 'scene information', 'scene report', 'scene'],
+    TrialField.vitals: ['vitals', 'vital signs', 'vital'], // "vital" heard on phone run 1
     TrialField.treatment: ['treatment', 'treatments'],
     TrialField.history: ['history'],
   },
-  endPhrases: ['first log end', 'firstlog end', 'first log and', 'first log ends', 'first log ended'],
+  // "stop dictation": said naturally by the owner on phone run 1 (VC-7 end phrase).
+  endPhrases: ['first log end', 'firstlog end', 'first log and', 'first log ends', 'first log ended', 'stop dictation'],
   readBack: ['read back', 'read it back'],
   call911: ['call nine one one', 'call nine eleven', 'call 911', 'call nine one won'],
+  call911Bare: ['nine one one', 'nine eleven'],
   promptAsk: 'New first aid log, or continuing?',
   promptReadyNew: 'Ready for a new log.',
   promptReadyContinue: 'Ready to continue.',
   promptProceed: 'Proceed.',
   promptSaved: 'Saved.',
   promptNothingToRead: 'Nothing saved yet.',
-  promptCall911: 'Call nine one one heard. Trial build, not dialling.',
+  // Must not contain a 9-1-1 phrase: on run 2 the app heard its own prompt and triggered again.
+  promptCall911: 'Emergency call heard. Trial build, not dialling.',
   weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
   months: [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -115,16 +136,19 @@ const frenchPack = LanguagePack(
     TrialField.history: ['antécédents', 'antécédent'],
   },
   // "First Log" is English; the French model may hear it differently - check the logs and add what it outputs.
-  endPhrases: ['first log fin', 'fin first log', 'fin de dictée', 'fin de la dictée'],
+  endPhrases: [
+    'first log fin', 'fin first log', 'fin de dictée', 'fin de la dictée', 'arrête la dictée', 'arrêter la dictée'
+  ],
   readBack: ['relire', 'relis', 'relecture'],
   call911: ['appel neuf un un', 'appeler le neuf un un', 'appelle le neuf un un', 'appel neuf cent onze'],
+  call911Bare: ['neuf un un', 'neuf cent onze'],
   promptAsk: 'Nouveau registre de premiers soins, ou on continue ?',
   promptReadyNew: 'Prêt pour un nouveau registre.',
   promptReadyContinue: 'Prêt à continuer.',
   promptProceed: 'Allez-y.',
   promptSaved: 'Enregistré.',
   promptNothingToRead: 'Rien d\'enregistré pour l\'instant.',
-  promptCall911: 'Appel du neuf un un entendu. Version d\'essai, pas d\'appel.',
+  promptCall911: 'Appel d\'urgence entendu. Version d\'essai, pas d\'appel.',
   weekdays: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
   months: [
     'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
@@ -150,6 +174,60 @@ class TrialTimings {
 
   /// Canary is run on chunks no longer than this (crude split; dictations are expected to be short).
   static const canaryMaxChunk = Duration(seconds: 25);
+}
+
+/// Recognizer tuning (set-up A). Hotwords bias the streaming model towards the key phrases; they need
+/// modified_beam_search, which costs more CPU than greedy search (watch the battery numbers).
+class TrialTuning {
+  static const hotwordsScore = 2.0;
+  static const maxActivePaths = 4;
+
+  /// Silero voice detector, used to cut silence out of a dictation before Canary sees it: on run 1 Canary
+  /// invented "T S F F F..." over 8 s of trailing silence (ST-4: never invent data).
+  static const vadModel = 'silero_vad.onnx';
+  static const vadThreshold = 0.5;
+  static const vadMinSilence = 0.5; // seconds
+  static const vadMinSpeech = 0.25; // seconds
+  static const vadMaxSpeech = 20.0; // seconds per segment
+
+  /// An ignored utterance this close to a key phrase (share of letters that differ) is logged as a near miss.
+  static const nearMissRatio = 0.34;
+
+  /// Live (set-up A): the words before a pause end a dictation if this close to an end phrase. Kept tight,
+  /// because a false match cuts a dictation short.
+  static const endPhraseLiveRatio = 0.25;
+
+  /// Canary text of a dictation already ended by the end phrase: a trailing look-alike is removed.
+  static const endPhraseTextRatio = 0.5;
+
+  /// "Call 9-1-1" heard slightly wrong still counts (share of letters that differ). Run 2 misses scored
+  /// 0.07-0.14 ("call mine one one", "carlvine one one", "all nine one one"). Missing a real call is worse
+  /// than a false alarm here (EM-2); the trial never dials.
+  static const call911Ratio = 0.2;
+
+  /// The streaming model reports a word's time a little after it was said; the end-phrase cut is moved this
+  /// much earlier. Chosen from the self-test on the run-1/2 phone recordings (see README).
+  static var endPhraseTimingLag = const Duration(milliseconds: 300);
+}
+
+/// Tones, vibration and the Bluetooth lead-in (run 2: with earbuds, short prompts like "Saved." were not
+/// heard; Bluetooth audio wakes up slowly and drops the first part of a sound).
+class TrialCues {
+  /// Silence played before every prompt, so a sleeping Bluetooth link wakes before the tone starts.
+  static const leadIn = Duration(milliseconds: 300);
+  static const toneMs = 120;
+  static const gapMs = 70;
+  static const volume = 0.35; // of full scale
+
+  /// Tone pitches (Hz): rising = "heard you, go ahead"; two equal = "saved"; three high = emergency.
+  static const start = [660.0, 880.0];
+  static const saved = [880.0, 880.0];
+  static const alert = [1046.0, 1046.0, 1046.0];
+
+  /// Vibration patterns, alternating wait/vibrate in ms.
+  static const vibrateStart = [0, 150];
+  static const vibrateSaved = [0, 100, 120, 100];
+  static const vibrateAlert = [0, 600];
 }
 
 const sampleRate = 16000;
