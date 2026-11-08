@@ -1,0 +1,47 @@
+# File path and name: .gitignore
+# Modified On Timestamp: 2026-11-07 @ 19:06 EST
+# Created On Timestamp: 2026-11-07 @ 19:06 EST
+# File Description: Files and folders git must never track in this repository.
+# Uses: nothing
+# Used By: git
+# Purpose: Keep secrets, personal settings, OS/editor junk and build output out of the public repo.
+#          Generic for now; extend once the tech stack (Flutter or PWA) is chosen.
+
+# Secrets and personal settings
+.env
+.env.*
+*.user
+*.pem
+*.key
+*.keystore
+*.jks
+key.properties
+secrets.json
+
+# Claude Code personal settings (shared settings.json may be committed)
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and IDEs
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# Build output and dependencies
+bin/
+obj/
+build/
+dist/
+out/
+node_modules/
+.dart_tool/
+coverage/
+
+# Logs and temp files
+*.log
+*.tmp
