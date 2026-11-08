@@ -1,6 +1,6 @@
 <!--
 File path and name: FirstLog – Requirements.md
-Modified On Timestamp: 2026-11-07 @ 19:59 EST (stack decided: Flutter; web mainly review/reports) - earlier: 2026-11-07 @ 19:34 EST (licence: GPL-3.0)
+Modified On Timestamp: 2026-11-08 @ 03:34 EST (voice interaction: command-driven capture, decision 0002) - earlier: 2026-11-07 @ 19:59 EST (stack decided: Flutter; web mainly review/reports); 2026-11-07 @ 19:34 EST (licence: GPL-3.0)
 Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
 File Description: FirstLog requirements: scope, roles, workflows, requirement IDs with priorities, data model,
                   reports, non-functional requirements, risks, open questions and release phases.
@@ -67,20 +67,30 @@ Every person in an incident has one role, and the record always shows who is the
 
 A single incident moves through eight stages; stages 3 to 5 repeat for every casualty and can overlap.
 
-1. **Start.** One tap or a wake phrase ("FirstLog, start incident") opens a new incident, starts recording, and stamps time and GPS location.
-2. **Scene size-up.** The first aider describes the scene and hazards; the app fills the scene record (location, hazards, number of casualties, resources).
-3. **Casualty capture.** Saying "new casualty" (or tapping +) creates a casualty with a temporary ID (C1, C2…) and a colour tag. Everything said next is attached to that casualty until another is selected.
+1. **Start.** When the app opens it asks aloud "New first aid log, or continuing?". The answer ("New" or "Continuing", or a tap) opens a new incident or resumes the open one; the app answers "Ready", says the day, date and time, stamps the time and GPS location, and starts listening for key phrases (see "How voice capture works" below).
+2. **Scene size-up.** The first aider says a field keyword such as "Scene info", then dictates the scene and hazards; the app fills the scene record (location, hazards, number of casualties, resources).
+3. **Casualty capture.** Saying "new casualty" (or tapping +) creates a casualty with a temporary ID (C1, C2…) and a colour tag. Each dictation is attached to the casualty selected at the time until another is selected.
 4. **Triage (multi-casualty).** The Primary assigns a triage category to each casualty using the protocol they chose (e.g. START), asking the app for a brief reminder of it if they want one, and assigns first aiders to casualties. A scene board shows every casualty, category and assigned responder.
 5. **Ongoing care.** Vitals, treatments, changes in condition and photos are logged against the casualty, each with a timestamp and the responder who recorded it.
 6. **9-1-1 call.** "FirstLog, call 9-1-1" opens the phone's dialer with 9-1-1 ready (or dials directly where the OS allows), logs the call time, and captures the conversation where the OS allows. The app shows a short script: location, number of casualties, main problems.
 7. **EMS arrival and handover.** The app produces a one-screen summary per casualty, shares it by QR code, PDF or nearby transfer, and records the transfer of care: receiving crew, unit number, time, and confirmation.
 8. **Close and report.** The Primary closes the incident, reviews and corrects the auto-structured record, and generates summary and detailed reports.
 
+**How voice capture works** (decided 2026-11-08; see `docs/decisions/0002-voice-interaction-command-driven-capture.md`)
+
+The app does not record the whole scene. From launch until the incident is closed it only *listens* on the device for its own key phrases, and it records and transcribes only what the user dictates after asking for it:
+
+1. The user says a field keyword, e.g. "Scene info" or "Vitals"; the app answers "Proceed".
+2. The user dictates, e.g. "Multi-vehicle accident involving three or more vehicles", then says the end phrase (e.g. "FirstLog end").
+3. The app stops capturing, saves the text and its audio to that field of the incident or the selected casualty, and says "Saved". Saying "Read back" has the app read the saved text aloud.
+
+A dictation also ends if the user stays silent for a set time, says the next field keyword, or taps Stop, so a misheard end phrase never leaves capture running. "Call 9-1-1" works at any moment, including during a dictation. The phrases above are examples; the final English and French phrases are chosen after the speech trial.
+
 **Example voice commands** (each also available as a button)
 
 - "Start incident" · "New casualty" · "Switch to casualty two"
 - "Call 9-1-1" · "Take photo" · "Mark casualty one red"
-- "Vitals: pulse 110, breathing 24" · "Show EMS summary" · "Hand over casualty one"
+- "Vitals" … "pulse 110, breathing 24" … "FirstLog end" · "Read back" · "Show EMS summary" · "Hand over casualty one"
 - "What triage protocols are there?" · "Remind me of START" · "Remind me of SALT"
 
 ## Functional requirements by area
@@ -91,19 +101,23 @@ Priority: **M** = must have for the first release, **S** = should have, **C** = 
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| VC-1 | Record continuous audio from incident start to close, with a visible recording indicator | M |
+| VC-1 | From launch until the incident is closed, listen on the device for FirstLog key phrases, including with the screen locked, with a visible listening indicator. Record and transcribe only dictations the user starts (VC-7); the scene is not recorded continuously | M |
 | VC-2 | Transcribe speech on the device, without internet, in the user's chosen language | M |
-| VC-3 | Keep the original audio linked to every transcript segment for later verification | M |
-| VC-4 | Recognize a small set of voice commands (start, new casualty, switch, call 9-1-1, photo, summary) | M |
+| VC-3 | Keep the original audio of every dictation linked to its transcript for later verification | M |
+| VC-4 | Recognize a small set of voice commands (new / continuing, field keywords, end phrase, read back, new casualty, switch, call 9-1-1, photo, summary) | M |
 | VC-5 | Tolerate background noise (traffic, crowds, sirens) and mark low-confidence text for review | S |
 | VC-6 | Identify which first aider is speaking when several share one device | C |
+| VC-7 | Command-driven dictation: a field keyword starts capture for that field of the incident or the selected casualty, and an end phrase stops it. Capture also stops after a set silence, on the next field keyword, or on a Stop tap | M |
+| VC-8 | Spoken prompts, offline, in the user's language: the opening question ("New first aid log, or continuing?"), "Ready" with the day, date and time, "Proceed" and "Saved". The app does not treat its own voice as a command | M |
+| VC-9 | Read back on request: the app reads the last saved dictation aloud (and, on request, a named field); by default it only says "Saved" | M |
+| VC-10 | "Call 9-1-1" is recognized at any time, including during a dictation or while the app is speaking (EM-1, EM-2) | M |
 
 ### Structuring the information
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| ST-1 | Extract structured fields from speech: casualty ID, mechanism of injury, chief complaint, level of consciousness, airway/breathing/circulation, vitals, injuries by body location, treatments, medications, allergies, history | M |
-| ST-2 | Attach each extracted item to the right casualty and the responder who said it, with a timestamp | M |
+| ST-1 | Save each dictation to the field the user named (casualty ID, mechanism of injury, chief complaint, level of consciousness, airway/breathing/circulation, vitals, injuries by body location, treatments, medications, allergies, history, scene); within a dictation, pick out values such as vital-sign numbers | M |
+| ST-2 | Attach each captured item to the incident or the selected casualty and the responder who said it, with a timestamp | M |
 | ST-3 | Show extracted items as editable cards; the user can confirm, correct or delete any item | M |
 | ST-4 | Never invent data: every structured item links back to the transcript words it came from | M |
 | ST-5 | Use standard first aid assessment frameworks (primary survey, SAMPLE history, OPQRST for pain) to organize the recorded fields only; they do not prompt or direct care | S |
@@ -197,7 +211,7 @@ An Incident is the top-level record; everything else belongs to it, and every it
 | Observation | Casualty | Type (vital sign, assessment finding, injury, history), value, body location, time, recorded by, source transcript segment |
 | Intervention | Casualty | Action (e.g. CPR, AED, bleeding control, splint), start/end time, performed by, response |
 | Media | Incident, optionally Casualty / Responder / Observation | Photo or audio file, time, GPS, annotations, consent status |
-| Transcript segment | Incident | Text, language, speaker, start/end time, confidence, link to audio |
+| Transcript segment | Incident | Text, language, speaker, field named by the user, casualty (if any), start/end time, confidence, link to audio |
 | Call | Incident | Number dialled, caller, start/end time, recording/transcript link, summary |
 | Handover | Casualty | Receiving service, unit, crew, time, destination, confirmation, summary sent |
 | Audit entry | Any record | Who changed what, when, old and new value |
@@ -232,7 +246,7 @@ FirstLog produces three reports, each available on screen, as PDF, and in any su
 
 - Every capture, triage and report function works with no internet or cell signal.
 - Opening the app to recording in under 3 seconds; voice command to action in under 1 second.
-- Usable for at least 2 hours of continuous recording on a typical phone battery.
+- Usable for at least 2 hours on a typical phone battery while listening for key phrases, with dictations as needed.
 - Data syncs to other first aiders' devices locally, and to cloud storage only if the user turns that on.
 
 ### Languages
@@ -269,7 +283,8 @@ The biggest risks are the phone platforms' limits on call recording and the reli
 | --- | --- | --- |
 | iOS does not let third-party apps record phone calls; Android restricts it | 9-1-1 call capture may be partial | Hand off to the native dialer, record via speakerphone where allowed, otherwise prompt for a spoken summary |
 | Noisy scenes and stressed speech reduce transcription accuracy | Wrong or missing data | Keep original audio, flag low-confidence text, require review before reports are final |
-| Automatic structuring may misassign data to the wrong casualty | Clinical and legal risk | Explicit casualty switching, visible "current casualty" banner, every item editable and traceable to the transcript |
+| Automatic structuring may misassign data to the wrong casualty | Clinical and legal risk | The user names the field before each dictation; explicit casualty switching, visible "current casualty" banner, every item editable and traceable to the transcript |
+| A key phrase or end phrase is misheard, missed or triggered by someone else's speech | Missed capture, or capture that runs on | Distinct "FirstLog" phrases, spoken confirmations ("Proceed", "Saved"), silence timeout, next keyword or Stop tap ends a dictation, visible listening / capturing indicator |
 | Health and photo data on personal phones | Privacy breach | On-device encryption, app lock, no cloud by default, retention rules |
 | Recommending triage or treatment may make the app regulated software as a medical device | Regulatory approval needed | Give no advice of its own; show only brief reminders of published protocols, on request, unchanged and with their source; the first aider makes every decision; confirm with a regulatory review (e.g. Health Canada) before release |
 | No standard way to send data into EMS systems | Handover is manual | QR/PDF now, FHIR export for future partnerships |
@@ -280,6 +295,7 @@ The biggest risks are the phone platforms' limits on call recording and the reli
 - [ ] Which triage protocols must be in the first release (START only, or also SALT / JumpSTART)?
 - [ ] Which organizations' protocol texts can FirstLog use, and under what licence or permission?
 - [ ] Which languages after English and French?
+- [ ] The exact key phrases in English and French (field keywords, end phrase, read back), chosen after the speech trial.
 - [ ] Which first aid organizations and EMS services can review the handover format?
 - [ ] Is optional cloud sync needed for organizations in v1, or later?
 - [x] Which open-source licence? GPL-3.0 (decided 2026-11-07).

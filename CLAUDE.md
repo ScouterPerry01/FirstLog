@@ -1,6 +1,6 @@
 <!--
 File path and name: CLAUDE.md
-Modified On Timestamp: 2026-11-07 @ 19:59 EST (added Architecture decisions and Session context)
+Modified On Timestamp: 2026-11-08 @ 03:34 EST (added voice interaction decision 0002) - earlier: 2026-11-07 @ 19:59 EST (added Architecture decisions and Session context)
 Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
 File Description: Project instructions for Claude Code in the FirstLog repository.
 Uses: FirstLog – Requirements.md, FirstLog – Background & Feasibility.md, docs/decisions/, docs/NOW.md,
@@ -39,7 +39,8 @@ Decision records live in `docs/decisions/` (one numbered file each). Do not re-a
 
 - **Stack: Flutter (Dart)**, one codebase for all platforms (`0001-tech-stack-flutter.md`).
 - **The installed apps are the capture tool; the web version is mainly for review and reports.** Do not design hands-free capture around the browser.
-- Speech recognition runs on the device through a bundled open-source engine; never a cloud or browser speech service.
+- Speech recognition runs on the device through a bundled open-source engine; never a cloud or browser speech service. Code against a speech-engine interface so engines can be swapped.
+- **Voice interaction: listen for key phrases, record only dictations the user starts** (field keyword → dictation → end phrase); no continuous recording of the scene (`0002-voice-interaction-command-driven-capture.md`).
 
 ## Session context
 

@@ -1,5 +1,5 @@
 <!-- File path and name: docs/outstanding-and-deferred-items.md
-     Modified On Timestamp: 2026-11-07 @ 21:08 EST
+     Modified On Timestamp: 2026-11-08 @ 03:34 EST
      Created On Timestamp: 2026-11-07 @ 19:28 EST
      File Description: The authoritative register of every OUTSTANDING and DEFERRED item still to be addressed in
                        FirstLog. Each item is defined, given a status, and flagged as a release gate or not.
@@ -83,10 +83,13 @@ New findings get the next **N-number** (N1, N2, ...) and go here AND into App.Tr
 
 | # | Item | Gate | Status | Evidence / what remains |
 |---|------|------|--------|-------------------------|
-| N1 | Trial build (spike): offline EN + FR speech on a low-cost Android phone with the screen locked, plus the same engine in a browser build; picks the speech engine | 🟡 | **OPEN** | Decision 0001 → Consequences; first build step; feeds 4.1. Dev phone is a flagship; battery/speed results need a low-cost phone |
+| N1 | Trial build (spike) on Android: key-phrase listening with the screen locked (reliability, battery), offline EN + FR dictation accuracy, end-phrase spotting; picks the speech engine | 🟡 | **PARTLY DONE** | Scope per decision 0002; step 0 research done 2026-11-08 (sherpa-onnx streaming + Canary-180m set-ups; Vosk fallback). Code in `spikes/speech_trial/` on branch `spike/n1-speech-trial`. Browser part moved to N5. Dev phone is a flagship; battery/speed results need a low-cost phone |
 | N2 | Confirm the offline and MVP acceptance criteria apply to the installed apps for hands-free capture, not the web version | 🟡 | **OPEN** | Decision 0001 → Consequences; owner to confirm; Requirements → Offline and performance |
 | N3 | Set up the Flutter development environment on the Windows PC | ⚪ | **DONE** | Flutter 3.47.9, `flutter doctor` clean, test app ran on Windows, web and Android - handover 2026-11-07 §4 |
 | N4 | `flutter run -d chrome` fails: the browser relaunches itself so Flutter never connects (Edge too) | ⚪ | **OPEN** | Security software on the dev PC suspected, unproven; workaround `flutter run -d web-server` - handover 2026-11-07 §4 |
+| N5 | Speech engine in the browser build: the `sherpa_onnx` Flutter package does not support web; would need a sherpa-onnx WebAssembly build plus a Dart-to-JavaScript bridge | 🟡 | **DEFERRED** | Moved out of N1 on 2026-11-08; decide after N2 (browser capture is best effort only, decision 0001) |
+| N6 | External / paid speech engines as a plug-in | ⚪ | **DEFERRED** | Owner idea 2026-11-08. Conditions: on-device only (VC-2, no cloud), user warning, GPL-3.0 route (separate app via the OS, or a licence exception). Needs its own decision record; revisit after N1 shows whether open-source engines are good enough |
+| N7 | Voice interaction model: key phrases + command-driven dictation, no continuous recording | 🟡 | **DONE** | Decision 0002 and Requirements edits, owner-approved 2026-11-08, committed on branch `spike/n1-speech-trial` |
 
 ---
 
