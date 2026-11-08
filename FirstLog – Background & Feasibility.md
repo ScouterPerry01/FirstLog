@@ -1,3 +1,14 @@
+<!--
+File path and name: FirstLog – Background & Feasibility.md
+Modified On Timestamp: 2026-11-07 @ 19:34 EST (header added)
+Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
+File Description: FirstLog background study: existing solutions, feasibility constraints, effort estimates,
+                  name ideas and sources.
+Uses: nothing
+Used By: CLAUDE.md (source of truth), FirstLog – Requirements.md, README.md, docs/outstanding-and-deferred-items.md.
+Purpose: Record why FirstLog is worth building and what makes it hard.
+-->
+
 # FirstLog – Background & Feasibility
 
 Nov 7, 2026 · @Perry

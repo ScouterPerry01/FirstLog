@@ -1,3 +1,14 @@
+<!--
+File path and name: FirstLog – Requirements.md
+Modified On Timestamp: 2026-11-07 @ 19:34 EST (licence decided: GPL-3.0)
+Created On Timestamp: 2026-11-07 @ 19:25 EST (first git commit; written earlier the same day)
+File Description: FirstLog requirements: scope, roles, workflows, requirement IDs with priorities, data model,
+                  reports, non-functional requirements, risks, open questions and release phases.
+Uses: FirstLog – Background & Feasibility.md
+Used By: CLAUDE.md (source of truth), README.md, docs/outstanding-and-deferred-items.md, all design and code work.
+Purpose: Define what FirstLog must do and why; if code and this document disagree, this document wins.
+-->
+
 # FirstLog – Requirements
 
 Nov 7, 2026 · @Perry
@@ -246,7 +257,7 @@ FirstLog produces three reports, each available on screen, as PDF, and in any su
 
 ### Open source
 
-- Licence: GPL-3.0 or Apache-2.0 (to decide), public repository, open issue tracker.
+- Licence: GPL-3.0 (decided 2026-11-07), public repository (https://github.com/ScouterPerry01/FirstLog), open issue tracker.
 - No paid features; any optional cloud sync must also be self-hostable.
 
 ## Constraints, risks and open questions
@@ -270,7 +281,7 @@ The biggest risks are the phone platforms' limits on call recording and the reli
 - [ ] Which languages after English and French?
 - [ ] Which first aid organizations and EMS services can review the handover format?
 - [ ] Is optional cloud sync needed for organizations in v1, or later?
-- [ ] Which open-source licence?
+- [x] Which open-source licence? GPL-3.0 (decided 2026-11-07).
 - [ ] Legal review: recording consent and privacy obligations in each launch region.
 
 ## Release phases and acceptance criteria
