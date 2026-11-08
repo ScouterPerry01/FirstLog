@@ -1,5 +1,5 @@
 // File path and name: spikes/speech_trial/lib/capture_controller.dart
-// Modified On Timestamp: 2026-11-08 @ 06:23 EST
+// Modified On Timestamp: 2026-11-08 @ 13:59 EST (mic kept running when a prompt plays; mic level + diagnostics)
 // Created On Timestamp: 2026-11-08 @ 06:23 EST
 // File Description: The trial's voice loop (decision 0002): ask "new or continuing", listen for key phrases,
 //                   "Proceed" -> dictation -> end phrase / silence / next keyword / Stop -> "Saved", "Read back",
@@ -53,6 +53,9 @@ class CaptureController extends ChangeNotifier {
   bool speaking = false;
   String partial = '';
   String? error;
+
+  /// Peak level of the latest microphone chunk, 0..1 (shown on screen so a dead mic is obvious).
+  double micLevel = 0;
   final List<Dictation> dictations = [];
   TrialLog? log;
 
@@ -63,6 +66,10 @@ class CaptureController extends ChangeNotifier {
   Voice? _voice;
   final AudioRecorder _recorder = AudioRecorder();
   StreamSubscription<Uint8List>? _micSub;
+  StreamSubscription<RecordState>? _micStateSub;
+  int _micSamples = 0; // since the last metrics line
+  double _micPeak = 0; // since the last metrics line
+  bool _firstAudioLogged = false;
   Timer? _tick;
   Timer? _metrics;
   final Battery _battery = Battery();
@@ -114,10 +121,14 @@ class CaptureController extends ChangeNotifier {
         throw StateError('Microphone permission refused');
       }
       await BackgroundService.start(); // Android: keeps listening with the screen locked (VC-1)
+      _firstAudioLogged = false;
+      _micStateSub = _recorder.onStateChanged().listen((s) => log?.event('mic-state', {'state': s.name}));
       final mic = await _recorder.startStream(const RecordConfig(
         encoder: AudioEncoder.pcm16bits,
         sampleRate: sampleRate,
         numChannels: 1,
+        // The default (pause) stops the mic for good as soon as our own prompt takes the audio focus.
+        audioInterruption: AudioInterruptionMode.none,
       ));
       _micSub = mic.listen(_onBytes, onError: (Object e) => log?.event('mic-error', {'error': '$e'}));
 
@@ -140,6 +151,9 @@ class CaptureController extends ChangeNotifier {
     _metrics?.cancel();
     await _micSub?.cancel();
     _micSub = null;
+    await _micStateSub?.cancel();
+    _micStateSub = null;
+    micLevel = 0;
     if (await _recorder.isRecording()) await _recorder.stop();
     await BackgroundService.stop();
     if (log != null) {
@@ -169,9 +183,22 @@ class CaptureController extends ChangeNotifier {
   void _onBytes(Uint8List bytes) {
     final samples = _pcm16ToFloat(bytes);
     if (samples.isEmpty || _listener == null) return;
+    var peak = 0.0;
+    for (final s in samples) {
+      final a = s.abs();
+      if (a > peak) peak = a;
+    }
+    micLevel = peak;
+    _micSamples += samples.length;
+    if (peak > _micPeak) _micPeak = peak;
+    if (!_firstAudioLogged) {
+      _firstAudioLogged = true;
+      log?.event('mic-first-audio', {'samples': samples.length, 'peak': peak});
+    }
     if (phase == Phase.dictating && !speaking) _dictAudio.add(samples);
     final res = _listener!.accept(samples);
     _handle(res);
+    notifyListeners(); // mic level on screen (~10 times a second; fine for a trial screen)
   }
 
   Float32List _pcm16ToFloat(Uint8List bytes) {
@@ -412,7 +439,11 @@ class CaptureController extends ChangeNotifier {
       'decodeSeconds': l?.decodeSeconds,
       'rtf': (l != null && l.audioSeconds > 0) ? l.decodeSeconds / l.audioSeconds : null,
       'dictations': dictations.length,
+      'micSeconds': _micSamples / sampleRate, // ~60 when the mic is alive; 0 means it stopped
+      'micPeak': _micPeak,
     });
+    _micSamples = 0;
+    _micPeak = 0;
   }
 
   @override

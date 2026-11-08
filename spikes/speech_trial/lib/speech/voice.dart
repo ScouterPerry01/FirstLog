@@ -1,5 +1,5 @@
 // File path and name: spikes/speech_trial/lib/speech/voice.dart
-// Modified On Timestamp: 2026-11-08 @ 06:23 EST
+// Modified On Timestamp: 2026-11-08 @ 13:59 EST (playback-wait type error fixed; prompts no longer take the audio focus)
 // Created On Timestamp: 2026-11-08 @ 06:23 EST
 // File Description: Offline spoken prompts for the N1 trial: sherpa-onnx text-to-speech (Piper voice) played
 //                   through audioplayers.
@@ -38,6 +38,8 @@ class Voice {
       ),
     ));
     _player.setReleaseMode(ReleaseMode.stop);
+    // Play without taking the audio focus, so the microphone keeps running during prompts.
+    _player.setAudioContext(AudioContext(android: const AudioContextAndroid(audioFocus: AndroidAudioFocus.none)));
   }
 
   late final sherpa.OfflineTts _tts;
@@ -52,7 +54,8 @@ class Voice {
     final genMs = watch.elapsedMilliseconds;
     final path = '$_tempDir${Platform.pathSeparator}prompt_${_n++ % 4}.wav';
     sherpa.writeWave(filename: path, samples: audio.samples, sampleRate: audio.sampleRate);
-    final done = _player.onPlayerComplete.first;
+    // then<void>: onPlayerComplete.first is a Future<AudioEvent> at run time, so a void onTimeout on it fails.
+    final done = _player.onPlayerComplete.first.then<void>((_) {});
     await _player.play(DeviceFileSource(path));
     await done.timeout(Duration(milliseconds: 1000 + audio.samples.length * 1000 ~/ audio.sampleRate),
         onTimeout: () {});
